@@ -8,12 +8,15 @@ export class User {
     @Column()
     email: string;
 
-    @Column()
-    firstName: string;
+    @Column({name: 'username', length: 50, unique: true})
+    userName: string;
 
     @Column()
-    lastName: string;
+    avatar: string;
+
+    @Column({nullable: true})
+    bio: string;
 
     @Column()
-    isActive: boolean
+    password: string;
 }
