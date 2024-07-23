@@ -3,21 +3,23 @@ import { AuthDto } from './dto/auth.dto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { PayloadDto } from './dto/payload.dto';
-import * as argon2 from "argon2";
-import {responseError} from './../common/exceptions/api.exception';
+import * as argon2 from 'argon2';
+import { responseError } from './../common/exceptions/api.exception';
 import { UsersService } from 'src/users/users.service';
+import { SignUpDto } from './dto/sign_up.dto';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
     private jwtService: JwtService,
     private configService: ConfigService,
-    private usersService: UsersService
+    private usersService: UsersService,
   ) {}
 
   async signIn(authDto: AuthDto) {
     let user = await this.usersService.findOneBy({
-      email: authDto.email
+      email: authDto.email,
     });
 
     if (!user) {
@@ -28,18 +30,57 @@ export class AuthService {
       return responseError(400, {}, 'Invalid user');
     }
 
-    let {accessToken, refreshToken} = await this.createToken({
+    let { accessToken, refreshToken } = await this.createToken({
       id: user.id,
-      username: user.userName,
-      email: user.email
+      username: user.username,
+      email: user.email,
     });
     await this.updateRefreshToken(user.id, refreshToken);
 
     return {
       user,
       accessToken,
-      refreshToken
+      refreshToken,
+    };
+  }
+
+  async signUp(signUphDto: SignUpDto) {
+    let user = await this.usersService.findOneBy({
+      email: signUphDto.email,
+    });
+
+    if (user) {
+      return responseError(400, {}, 'Email already exist!');
     }
+
+    if (
+      await this.usersService.findOneBy({
+        username: signUphDto.username,
+      })
+    ) {
+      return responseError(400, {}, 'Username already exist!');
+    }
+
+    let userEntity = new User();
+    Object.assign(userEntity, signUphDto);
+    userEntity.avatar = 'user.jpg'; // TODO
+
+    userEntity.password = await this.hashData(signUphDto.password);
+
+    user = await this.usersService.create(userEntity);
+
+    let { accessToken, refreshToken } = await this.createToken({
+      id: user.id,
+      username: user.username,
+      email: user.email,
+    });
+    await this.updateRefreshToken(user.id, refreshToken);
+
+    return {
+      user,
+      accessToken,
+      refreshToken,
+    };
   }
 
   async createToken(data: PayloadDto) {
@@ -78,7 +119,7 @@ export class AuthService {
     });
   }
 
-  async hashData(value: string|Buffer): Promise<string> {
+  async hashData(value: string | Buffer): Promise<string> {
     return await argon2.hash(value);
   }
 }

@@ -9,7 +9,7 @@ export class User {
     email: string;
 
     @Column({name: 'username', length: 50, unique: true})
-    userName: string;
+    username: string;
 
     @Column()
     avatar: string;
