@@ -22,7 +22,7 @@ export class UsersService {
   }
 
   async findOne(id: string) {
-    return await this.usersRepository.findOneBy({id});;
+    return await this.usersRepository.findOneBy({id});
   }
 
   async findOneBy(where) {

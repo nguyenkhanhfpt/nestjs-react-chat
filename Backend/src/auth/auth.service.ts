@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { AuthDto } from './dto/auth.dto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -31,7 +31,7 @@ export class AuthService {
     }
 
     let { accessToken, refreshToken } = await this.createToken({
-      id: user.id,
+      sub: user.id,
       username: user.username,
       email: user.email,
     });
@@ -70,7 +70,7 @@ export class AuthService {
     user = await this.usersService.create(userEntity);
 
     let { accessToken, refreshToken } = await this.createToken({
-      id: user.id,
+      sub: user.id,
       username: user.username,
       email: user.email,
     });
@@ -87,7 +87,7 @@ export class AuthService {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         {
-          sub: data.id,
+          sub: data.sub,
         },
         {
           secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
@@ -96,7 +96,7 @@ export class AuthService {
       ),
       this.jwtService.signAsync(
         {
-          sub: data.id,
+          sub: data.sub,
         },
         {
           secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
@@ -112,7 +112,9 @@ export class AuthService {
   }
 
   async updateRefreshToken(userId, refreshToken) {
-    const hashedRefreshToken = await this.hashData(refreshToken);
+    const hashedRefreshToken = refreshToken
+      ? await this.hashData(refreshToken)
+      : null;
 
     return await this.usersService.update(userId, {
       refreshToken: hashedRefreshToken,
@@ -121,5 +123,44 @@ export class AuthService {
 
   async hashData(value: string | Buffer): Promise<string> {
     return await argon2.hash(value);
+  }
+
+  async refreshTokens(userId: string, refreshToken: string) {
+    const user = await this.usersService.findOne(userId);
+
+    if (!user || !user.refreshToken) {
+      throw new ForbiddenException('Access Denied');
+    }
+
+    const refreshTokenMatches = await argon2.verify(
+      user.refreshToken,
+      refreshToken,
+    );
+
+    if (!refreshTokenMatches) {
+      throw new ForbiddenException('Access Denied');
+    }
+
+    const tokens = await this.createToken({
+      sub: user.id,
+      username: user.username,
+      email: user.email,
+    });
+
+    await this.updateRefreshToken(user.id, tokens.refreshToken);
+
+    return tokens;
+  }
+
+  async logout(userId: string) {
+    const user = await this.usersService.findOne(userId);
+
+    if (!user) {
+      return responseError(400, {}, 'Invalid user');
+    }
+
+    await this.updateRefreshToken(user.id, null);
+
+    return true;
   }
 }
