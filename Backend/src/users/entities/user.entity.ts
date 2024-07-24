@@ -8,12 +8,18 @@ export class User {
     @Column()
     email: string;
 
-    @Column()
-    firstName: string;
+    @Column({name: 'username', length: 50, unique: true})
+    username: string;
 
     @Column()
-    lastName: string;
+    avatar: string;
+
+    @Column({nullable: true})
+    bio: string;
 
     @Column()
-    isActive: boolean
+    password: string;
+
+    @Column({name: 'refresh_token', nullable: true})
+    refreshToken: string;
 }
