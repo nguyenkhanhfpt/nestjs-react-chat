@@ -1,19 +1,47 @@
+import { useState } from "react";
 import { useDispatchUser, useUser } from "../context/UserContext";
+import axios from "axios";
 
 export function SignInPage() {
   const dispatch = useDispatchUser();
   const user = useUser();
-  
+  let [email, setEmail] = useState("");
+  let [password, setPassword] = useState("");
+  let [loginErr, setLoginErr] = useState('');
+
   const handleLogin = (e) => {
     e.preventDefault();
-    dispatch({
-      type: 'LOGIN'
-    })
 
-    setTimeout(() => {
-      console.log();
-    }, 1000)
-  }
+    axios
+      .post("http://localhost:3000/auth/signin", {
+        email,
+        password,
+      })
+      .then(function (response) {
+        setLoginErr('');
+        let {user} = response.data.data;
+
+        dispatch({
+          type: "LOGIN",
+          data: {
+            user: {
+              id: user.id,
+              email: user.email,
+              username: user.username,
+              avatar: user.avatar,
+            }
+          }
+        });
+    
+        console.log(user);
+
+      })
+      .catch(function (error) {
+        let response = error.response.data;
+
+        setLoginErr(response.error);
+      });
+  };
 
   return (
     <>
@@ -25,7 +53,7 @@ export function SignInPage() {
             alt="Your Company"
           />
           <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
-            Sign in to your account {user?.id ? 'Logined': 'Not login'}
+            Sign in to your account {user?.id ? "Logined" : "Not login"}
           </h2>
         </div>
 
@@ -33,7 +61,7 @@ export function SignInPage() {
           <form className="space-y-6" action="" method="POST">
             <div>
               <label
-                for="email"
+                htmlFor="email"
                 className="block text-sm font-medium leading-6 text-gray-900"
               >
                 Email address
@@ -43,6 +71,8 @@ export function SignInPage() {
                   id="email"
                   name="email"
                   type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   autoComplete="email"
                   required
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -53,7 +83,7 @@ export function SignInPage() {
             <div>
               <div className="flex items-center justify-between">
                 <label
-                  for="password"
+                  htmlFor="password"
                   className="block text-sm font-medium leading-6 text-gray-900"
                 >
                   Password
@@ -72,12 +102,15 @@ export function SignInPage() {
                   id="password"
                   name="password"
                   type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   autoComplete="current-password"
                   required
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
               </div>
             </div>
+            {loginErr && (<span className="text-bold" style={{'color': 'rgb(239 68 68)'}}>{loginErr}</span>)} 
 
             <div>
               <button

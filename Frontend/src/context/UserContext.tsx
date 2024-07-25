@@ -2,6 +2,9 @@ import React, { ReactNode, createContext, useContext, useReducer } from "react";
 
 interface UserContextType {
   id: number;
+  email: string;
+  username: string;
+  avatar: string;
 }
 
 interface UserProviderProps {
@@ -11,13 +14,10 @@ interface UserProviderProps {
 const UserContext = createContext<UserContextType | null>(null);
 const DispatchUserContext = createContext<UserContextType | null>(null);
 
-const userReducer = (user, action) => {
+const userReducer = (data, action) => {
   switch (action.type) {
     case "LOGIN":
-      return {
-        id: 1,
-        name: "khanh nguyen",
-      };
+      return data.user;
     case "LOGOUT":
       return {};
   }
