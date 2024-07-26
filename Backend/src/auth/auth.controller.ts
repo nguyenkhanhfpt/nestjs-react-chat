@@ -52,6 +52,7 @@ export class AuthController {
     })
   }
   
+  @Public()
   @UseGuards(RefreshTokenGuard)
   @Get('refresh')
   async refreshToken(@Req() req, @Res() res) {
