@@ -23,18 +23,13 @@ export function SignInPage() {
 
         dispatch({
           type: "LOGIN",
-          data: {
-            user: {
-              id: user.id,
-              email: user.email,
-              username: user.username,
-              avatar: user.avatar,
-            }
+          user: {
+            id: user.id,
+            email: user.email,
+            username: user.username,
+            avatar: user.avatar,
           }
         });
-    
-        console.log(user);
-
       })
       .catch(function (error) {
         let response = error.response.data;
