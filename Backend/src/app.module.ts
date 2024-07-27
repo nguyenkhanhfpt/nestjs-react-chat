@@ -9,6 +9,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { AccessTokenGuard } from './common/guards/accessToken.guard';
 import { ConventionsModule } from './conventions/conventions.module';
 import { MessagesModule } from './messages/messages.module';
+import { ConventionUsersModule } from './convention-users/convention-users.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { MessagesModule } from './messages/messages.module';
     AuthModule,
     ConventionsModule,
     MessagesModule,
+    ConventionUsersModule,
   ],
   controllers: [AppController],
   providers: [

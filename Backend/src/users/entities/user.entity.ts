@@ -1,3 +1,4 @@
+import { ConventionUser } from "src/convention-users/entities/convention-user.entity";
 import { Message } from "src/messages/entities/messages.entity";
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
@@ -26,4 +27,7 @@ export class User {
 
     @OneToMany(() => Message, message => message.sender)
     messages: Message[];
+
+    @OneToMany(() => ConventionUser, conventionUser => conventionUser.user)
+    userConventions: ConventionUser;
 }
