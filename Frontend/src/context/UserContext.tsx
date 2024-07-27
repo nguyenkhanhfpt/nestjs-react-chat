@@ -2,6 +2,9 @@ import React, { ReactNode, createContext, useContext, useReducer } from "react";
 
 interface UserContextType {
   id: number;
+  email: string;
+  username: string;
+  avatar: string;
 }
 
 interface UserProviderProps {
@@ -11,13 +14,16 @@ interface UserProviderProps {
 const UserContext = createContext<UserContextType | null>(null);
 const DispatchUserContext = createContext<UserContextType | null>(null);
 
-const userReducer = (user, action) => {
+const userReducer = (user: UserContextType | {}, action) => {
   switch (action.type) {
     case "LOGIN":
-      return {
-        id: 1,
-        name: "khanh nguyen",
+      let userLogin = {
+        ...user,
+        ...action.user,
       };
+      sessionStorage.setItem("currentUser", JSON.stringify(userLogin));
+
+      return userLogin;
     case "LOGOUT":
       return {};
   }
@@ -31,8 +37,14 @@ const useDispatchUser = () => {
   return useContext(DispatchUserContext);
 };
 
+const getUserData = () => {
+  let user = sessionStorage.getItem("currentUser");
+
+  return JSON.parse(user || "{}");
+};
+
 const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
-  let [user, dispatch] = useReducer(userReducer, {});
+  let [user, dispatch] = useReducer(userReducer, getUserData());
 
   return (
     <UserContext.Provider value={user}>
