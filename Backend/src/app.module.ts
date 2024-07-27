@@ -7,6 +7,8 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AccessTokenGuard } from './common/guards/accessToken.guard';
+import { ConventionsModule } from './conventions/conventions.module';
+import { MessagesModule } from './messages/messages.module';
 
 @Module({
   imports: [
@@ -30,6 +32,8 @@ import { AccessTokenGuard } from './common/guards/accessToken.guard';
 
     UsersModule,
     AuthModule,
+    ConventionsModule,
+    MessagesModule,
   ],
   controllers: [AppController],
   providers: [
