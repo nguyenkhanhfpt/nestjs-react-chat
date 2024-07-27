@@ -7,11 +7,15 @@ export class ConventionUser {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(() => Convention, convention => convention.userConventions)
+    @ManyToOne(() => Convention, convention => convention.userConventions, {
+        onDelete: "CASCADE"
+    })
     @JoinColumn({name: 'convention_id'})
     convention: Convention;
 
-    @ManyToOne(() => User, user => user.userConventions)
+    @ManyToOne(() => User, user => user.userConventions, {
+        onDelete: "CASCADE"
+    })
     @JoinColumn({name: 'user_id'})
     user: User;
 }
