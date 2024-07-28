@@ -10,6 +10,7 @@ import { AccessTokenGuard } from './common/guards/accessToken.guard';
 import { ConventionsModule } from './conventions/conventions.module';
 import { MessagesModule } from './messages/messages.module';
 import { ConventionUsersModule } from './convention-users/convention-users.module';
+import { ChatsModule } from './chats/chats.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { ConventionUsersModule } from './convention-users/convention-users.modul
     ConventionsModule,
     MessagesModule,
     ConventionUsersModule,
+    ChatsModule,
   ],
   controllers: [AppController],
   providers: [
