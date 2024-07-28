@@ -21,6 +21,7 @@ export class AuthController {
 
   @Public()
   @Post('signin')
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async signIn(@Body() authDto: AuthDto, @Res() res) {
     let signInData = await this.authService.signIn(authDto);
 

@@ -26,6 +26,7 @@ export class AuthService {
       return responseError(400, {}, 'Invalid email');
     }
 
+    console.log(authDto)
     if (!(await argon2.verify(user.password, authDto.password))) {
       return responseError(400, {}, 'Invalid user');
     }
